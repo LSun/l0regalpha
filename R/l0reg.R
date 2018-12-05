@@ -1,12 +1,8 @@
-# sbr = function (A, z, lambda, control = list(VERB = 0, qinit = c(), explore = "all", K = M))
-#
-# Minimization of the cost function J(x) = ||z-Ax||_2^2 + lambda ||x||_0
+# Minimization of the cost function J(x) = 1/2||z-Ax||_2^2 + lambda ||x||_0
 # by the Single Best Replacement (SBR) algorithm
 #
-# This R program is modified from the Matlab program provided by Charles Soussen at
+# This R program is adapted from the Matlab program provided by Charles Soussen at
 # http://w3.cran.univ-lorraine.fr/perso/charles.soussen/software.html
-#
-# Contact information: sunl@uchicago.edu
 #
 # The Matlab program is a supplementary material to the paper:
 #
@@ -16,11 +12,6 @@
 #
 # Contact information: Charles.Soussen@univ-lorraine.fr
 #----------------------------------------------------------------------
-#
-# Version which STORES THE GRAM MATRIX A'A and updates the Cholesky
-# factorization of (A'*A)(active_columns,active_columns). The
-# insertion/removal tests are done in parallel
-#
 #
 # INPUTS
 #
@@ -72,7 +63,9 @@
 
 require(Matrix)
 
-l0reg = function (A, z, lambda, control = list()) {
+l0reg = function (X, y, lambda, control = list()) {
+  A <- X
+  z <- y
   lambda = 2 * lambda
 
 	M = ncol(A) # size of vector x
@@ -375,6 +368,5 @@ if (!all(sol_cour == 0)) {
 x.sparse = cbind(which(x != 0), x[which(x != 0)])
 colnames(x.sparse) = c("position", "value")
 
-
-return(list(x = x, x.sparse = x.sparse, Jit = Jit, FLAG = FLAG))
+return(list(coef = x, coef.sparse = x.sparse, Jit = Jit, FLAG = FLAG))
 }
