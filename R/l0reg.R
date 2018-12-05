@@ -61,8 +61,6 @@
 #
 #---------------------------------------------------------------------
 
-require(Matrix)
-
 l0reg = function (X, y, lambda, control = list()) {
   A <- X
   z <- y
@@ -89,7 +87,7 @@ l0reg = function (X, y, lambda, control = list()) {
 	Az = t(A) %*% z # < h_i,z>
 	h2 = diag(AA) # ||h_i||^2
 	z2 = sum(z^2) # ||z||^2
-	Jit = rep(0, length = K + 1)
+	Jit = rep(NA, length = K + 1)
 
 	# zero-valued initial solution
 	q = rep(0, length = M) # sparse vector of size Mx1, initialized to 0
@@ -368,5 +366,23 @@ if (!all(sol_cour == 0)) {
 x.sparse = cbind(which(x != 0), x[which(x != 0)])
 colnames(x.sparse) = c("position", "value")
 
-return(list(coef = x, coef.sparse = x.sparse, Jit = Jit, FLAG = FLAG))
+obj.nonzero <- cbind(
+  num.nonzero = which(!is.na(Jit)) - 1,
+  opt.obj.value = Jit[!is.na(Jit)]
+)
+
+result <- list(coef.sparse = x.sparse, obj = obj.nonzero, status = FLAG,
+               coef = x, X = X, y = y, lambda = lambda / 2, explore = explore, K = K
+               )
+class(result) <- 'l0reg'
+
+return(result)
+}
+
+summary.l0reg <- function (result, ...) {
+  print(result[1 : 3])
+}
+
+print.l0reg <- function (result, ...) {
+  print(summary.l0reg(result))
 }
